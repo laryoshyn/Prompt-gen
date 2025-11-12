@@ -1,0 +1,23 @@
+# Claude Code local settings
+.claude/settings.local.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+
+# Frontend app
+app/node_modules/
+app/dist/
+app/.env.local
+app/.env.production.local
