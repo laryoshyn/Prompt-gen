@@ -1,22 +1,31 @@
 import { openDB, type IDBPDatabase } from 'idb';
 import type { PromptFormData } from '@/types/prompt';
 import type { WorkflowGraph } from '@/types/workflow';
+import type { UniversalPrompt, StoredPrompt } from '@/types/prompt-unified';
 
 /**
  * IndexedDB storage manager for prompts, workflows, and templates
+ *
+ * Version History:
+ * - v1: Initial schema (prompts, workflows, templates, versions)
+ * - v2: Added custom-agents store
+ * - v3: Unified prompts (replaced prompts + custom-agents with unified-prompts)
+ *
  * Uses idb wrapper for better API
  */
 
 const DB_NAME = 'prompt-gen-db';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 // Store names
 const STORES = {
-  PROMPTS: 'prompts',
+  UNIFIED_PROMPTS: 'unified-prompts',  // NEW in v3: replaces prompts + custom-agents
   WORKFLOWS: 'workflows',
   TEMPLATES: 'templates',
   VERSIONS: 'versions',
-  CUSTOM_AGENTS: 'custom-agents',
+  // Legacy stores (kept for migration, deprecated)
+  PROMPTS: 'prompts',  // DEPRECATED in v3
+  CUSTOM_AGENTS: 'custom-agents',  // DEPRECATED in v3
 } as const;
 
 interface Template {
