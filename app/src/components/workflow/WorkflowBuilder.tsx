@@ -111,8 +111,9 @@ function WorkflowBuilderInner() {
     (event: React.DragEvent) => {
       event.preventDefault();
 
-      const role = event.dataTransfer.getData('application/reactflow') as AgentRole;
-      if (!role || !reactFlowWrapper.current || !reactFlowInstance) {
+      // Can be either a built-in AgentRole or a custom agent ID
+      const agentId = event.dataTransfer.getData('application/reactflow');
+      if (!agentId || !reactFlowWrapper.current || !reactFlowInstance) {
         return;
       }
 
@@ -137,8 +138,8 @@ function WorkflowBuilderInner() {
       // Smart alignment: align with nearby nodes while staying in the drop area
       const alignedPosition = alignWithNearbyNodes(dropPosition, nodes);
 
-      // Add node at aligned position
-      addNode(role, alignedPosition);
+      // Add node at aligned position (supports both built-in roles and custom agent IDs)
+      addNode(agentId, alignedPosition);
     },
     [reactFlowInstance, addNode, nodes]
   );

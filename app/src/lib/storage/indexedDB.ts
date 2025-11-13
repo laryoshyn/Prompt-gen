@@ -8,7 +8,7 @@ import type { WorkflowGraph } from '@/types/workflow';
  */
 
 const DB_NAME = 'prompt-gen-db';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 // Store names
 const STORES = {
@@ -16,6 +16,7 @@ const STORES = {
   WORKFLOWS: 'workflows',
   TEMPLATES: 'templates',
   VERSIONS: 'versions',
+  CUSTOM_AGENTS: 'custom-agents',
 } as const;
 
 interface Template {
@@ -82,6 +83,17 @@ async function initDB(): Promise<IDBPDatabase> {
         });
         versionStore.createIndex('promptId', 'promptId', { unique: false });
         versionStore.createIndex('timestamp', 'timestamp', { unique: false });
+      }
+
+      // Create custom-agents store (added in v2)
+      if (!db.objectStoreNames.contains(STORES.CUSTOM_AGENTS)) {
+        const customAgentStore = db.createObjectStore(STORES.CUSTOM_AGENTS, {
+          keyPath: 'id',
+        });
+        customAgentStore.createIndex('name', 'name', { unique: false });
+        customAgentStore.createIndex('source', 'source', { unique: false });
+        customAgentStore.createIndex('role', 'role', { unique: false });
+        customAgentStore.createIndex('createdAt', 'createdAt', { unique: false });
       }
     },
   });

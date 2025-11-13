@@ -18,6 +18,7 @@ import type {
   WorkflowState,
 } from '@/types/workflow';
 import { getAgentTemplate } from '@/lib/workflow/agentTemplates';
+import { agentRegistry } from '@/lib/workflow/agentRegistry';
 import { validateWorkflowGraph, getValidationSuggestions } from '@/lib/workflow/graphValidator';
 import { serializeWorkflowGraph, type SerializationOptions } from '@/lib/workflow/graphSerializer';
 import { generateMultiAgentPackage, type OrchestratorConfig } from '@/lib/workflow/orchestratorGenerator';
@@ -350,16 +351,27 @@ export const useWorkflowStore = create<WorkflowStore>()(
     get().validateWorkflow();
   },
 
-  addNode: (type, position) => {
-    const template = getAgentTemplate(type);
+  addNode: (typeOrId, position) => {
+    // Try to get template from agent registry first (supports custom agents)
+    let template = agentRegistry.getAgent(typeOrId);
+
+    // Fall back to built-in templates if not found in registry
+    if (!template) {
+      template = getAgentTemplate(typeOrId as AgentRole);
+    }
+
+    if (!template) {
+      console.error(`No template found for agent: ${typeOrId}`);
+      return;
+    }
 
     const newNode: WorkflowNode = {
-      id: `${type}-${Date.now()}`,
+      id: `${typeOrId}-${Date.now()}`,
       type: 'default',
       position,
       data: {
         label: template.name,
-        role: type,
+        role: template.role,
         promptTemplate: template.promptTemplate,
         description: template.description,
         config: {
